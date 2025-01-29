@@ -20,7 +20,7 @@ enum DeskState: String {
 
 class ViewController: NSViewController {
     @IBOutlet weak var heightSlider: NSSlider!
-    
+
     var isConnected: Bool = false
 
     private var serialPort: ORSSerialPort?
@@ -29,9 +29,12 @@ class ViewController: NSViewController {
 
     @IBOutlet weak var heightLabel: NSTextField!
     
+    @IBOutlet weak var progress: NSProgressIndicator!
+
+
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        title = "Standing Desk Controller"
         let ports = ORSSerialPortManager.shared().availablePorts
         print(ports)
 
@@ -96,9 +99,14 @@ extension ViewController: ORSSerialPortDelegate {
                 if let hight = Int(line.trimmingCharacters(in: .whitespacesAndNewlines)) {
                     //print("height: <\(hight)>")
                     heightLabel.stringValue = "\(hight) mm"
+                    progress.doubleValue = Double(hight)
                 } else if let state = DeskState(rawValue: line.trimmingCharacters(in: .whitespacesAndNewlines)) {
                     //print("state: <\(state)>")
                     stateLabel.stringValue = state.rawValue
+                    if state == .unhomed {
+                        progress.doubleValue = 0
+                        heightLabel.stringValue = "- mm"
+                    }
                 }
             }
         }
